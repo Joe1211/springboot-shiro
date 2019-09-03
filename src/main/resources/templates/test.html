@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div shiro:hasPermission="user:add">
+    用户添加：<a href="add">用户添加</a>
+</div>
+    <br>
+<div shiro:hasPermission="user:update">
+    用户更新：<a href="update">用户更新</a>
+</div>
+</body>
+</html>
