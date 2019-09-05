@@ -37,4 +37,14 @@ public class User {
     public void setPerms(String perms) {
         this.perms = perms;
     }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", password='" + password + '\'' +
+                ", perms='" + perms + '\'' +
+                '}';
+    }
 }

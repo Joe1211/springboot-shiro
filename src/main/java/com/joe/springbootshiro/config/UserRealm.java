@@ -11,6 +11,7 @@ import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
+import org.apache.shiro.util.ByteSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -33,8 +34,13 @@ public class UserRealm extends AuthorizingRealm {
 
         //到数据库查询当前登录用户的授权字符串
         //获取当前登录用户的id
-        Subject subject = SecurityUtils.getSubject();
-        User user = (User)subject.getPrincipal();
+//        Subject subject = SecurityUtils.getSubject();
+//        User user = (User)subject.getPrincipal();
+
+        //获取数据库用户
+        String username = (String) principalCollection.getPrimaryPrincipal();
+        System.out.println("username---------------------->"+username);
+        User user = userService.getUser(username);
         User dbUser = userService.getUserId(user.getId());
 
         info.addStringPermission(dbUser.getPerms());
@@ -46,7 +52,7 @@ public class UserRealm extends AuthorizingRealm {
     UserService userService;
 
     /**
-     *
+     *提供账户信息，返回认证信息
      * 执行认证逻辑
      */
     @Override
@@ -57,13 +63,20 @@ public class UserRealm extends AuthorizingRealm {
         //1.判断用户名
         UsernamePasswordToken token = (UsernamePasswordToken)arg0;
 
+        //获取数据库用户
         User user = userService.getUser(token.getUsername());
+        System.out.println("user------>"+user);
 
         if (user == null){
             //用户名不存在
             return null;//shiro底层会抛出UnknowAccountException
         }
         //判断密码
-        return new SimpleAuthenticationInfo(user,user.getPassword(),"");
+        ByteSource credentialsSalt = ByteSource.Util.bytes(user.getId()+user.getName());
+
+        SimpleAuthenticationInfo info = null;
+       info = new SimpleAuthenticationInfo(user.getName(),user.getPassword(),credentialsSalt,getName());
+       // info = new SimpleAuthenticationInfo(user.getName(),user.getPassword(),"");
+        return info;
     }
 }

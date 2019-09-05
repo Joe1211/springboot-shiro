@@ -1,6 +1,7 @@
 package com.joe.springbootshiro.config;
 
 import at.pollux.thymeleaf.shiro.dialect.ShiroDialect;
+import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.servlet.ShiroFilter;
@@ -40,6 +41,8 @@ public class ShiroConfig {
 
         filterMap.put("/add","authc");
         filterMap.put("/update","authc");
+//        filterMap.put("/toLogin","anon");
+//        filterMap.put("/*","authc");
 
 
         //授权过滤器
@@ -70,13 +73,25 @@ public class ShiroConfig {
         return defaultWebSecurityManager;
     }
 
+    @Bean
+    public HashedCredentialsMatcher hashedCredentialsMatcher() {
+        HashedCredentialsMatcher hashedCredentialsMatcher = new HashedCredentialsMatcher();
+        hashedCredentialsMatcher.setHashAlgorithmName("MD5"); // 散列算法
+        hashedCredentialsMatcher.setHashIterations(1); // 散列次数
+        return hashedCredentialsMatcher;
+    }
+
     /**
      * 创建Realm
      */
     @Bean(name = "userRealm")
-    public UserRealm getRealm(){
-        return new UserRealm();
+    public UserRealm shiroRealm() {
+        UserRealm shiroRealm = new UserRealm();
+        shiroRealm.setCredentialsMatcher(hashedCredentialsMatcher()); // 原来在这里
+        return shiroRealm;
     }
+
+
 
     /**
      * 配置Shirodialect,用于thymeleaf和shiro标签的配合使用
